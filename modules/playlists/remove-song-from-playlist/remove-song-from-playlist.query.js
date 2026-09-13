@@ -1,6 +1,6 @@
 import { sql } from "#db"
 
-export default async function handleRemoveSongQuery(song_id, playlist_id, user_id ){
+export default async function removeSongFromPlaylistQuery(song_id, playlist_id, user_id ){
         await sql`
             DELETE FROM playlists_songs
             USING playlists

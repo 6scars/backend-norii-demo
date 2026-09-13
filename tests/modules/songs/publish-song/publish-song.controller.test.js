@@ -7,7 +7,7 @@ import { after, test } from 'node:test';
 process.env.SUPABASE_URL = 'https://example.supabase.co';
 process.env.SUPABASE_KEY = 'test-key';
 
-const { createSaveSongInBase } = await import('#songs/publish-song/publish-song.controller.js');
+const { createPublishSongController } = await import('#songs/publish-song/publish-song.controller.js');
 const temporaryRoot = await mkdtemp(path.join(os.tmpdir(), 'spotify-upload-cleanup-'));
 let requestNumber = 0;
 
@@ -84,9 +84,9 @@ async function execute(controller, req) {
 test('removes the MP3 from Supabase when the cover upload fails', async () => {
   const storage = createStorage({ failUploadNumber: 2 });
   const queries = {
-    async insertSongWithAuthorQuery() { throw new Error('database should not be called'); },
+    async insertPublishedSong() { throw new Error('database should not be called'); },
   };
-  const controller = createSaveSongInBase({ storage, queries });
+  const controller = createPublishSongController({ storage, queries });
 
   const { forwardedError } = await execute(controller, await createRequest());
 
@@ -97,9 +97,9 @@ test('removes the MP3 from Supabase when the cover upload fails', async () => {
 test('removes both Supabase objects when the database transaction fails', async () => {
   const storage = createStorage();
   const queries = {
-    async insertSongWithAuthorQuery() { throw new Error('database transaction failed'); },
+    async insertPublishedSong() { throw new Error('database transaction failed'); },
   };
-  const controller = createSaveSongInBase({ storage, queries });
+  const controller = createPublishSongController({ storage, queries });
 
   const { forwardedError } = await execute(controller, await createRequest());
 
@@ -114,12 +114,12 @@ test('keeps Supabase objects after the publication transaction succeeds', async 
   const storage = createStorage();
   let receivedConsent;
   const queries = {
-    async insertSongWithAuthorQuery(...args) {
+    async insertPublishedSong(...args) {
       receivedConsent = args.at(-1);
       return 12;
     },
   };
-  const controller = createSaveSongInBase({ storage, queries });
+  const controller = createPublishSongController({ storage, queries });
 
   const { forwardedError, response } = await execute(controller, await createRequest());
 
@@ -134,12 +134,12 @@ test('rejects missing publication consent before uploading to Supabase', async (
   const storage = createStorage();
   let queryCalls = 0;
   const queries = {
-    async insertSongWithAuthorQuery() {
+    async insertPublishedSong() {
       queryCalls += 1;
       return 12;
     },
   };
-  const controller = createSaveSongInBase({ storage, queries });
+  const controller = createPublishSongController({ storage, queries });
   const request = await createRequest();
   delete request.body.publicationConsent;
 
@@ -154,12 +154,12 @@ test('rejects an invalid title before uploading and removes temporary files', as
   const storage = createStorage();
   let queryCalls = 0;
   const queries = {
-    async insertSongWithAuthorQuery() {
+    async insertPublishedSong() {
       queryCalls += 1;
       return 12;
     },
   };
-  const controller = createSaveSongInBase({ storage, queries });
+  const controller = createPublishSongController({ storage, queries });
   const request = await createRequest();
   request.body.addSongForm = JSON.stringify({ song_name: 'abc' });
   const temporaryAudioPath = request.files.mp3[0].path;

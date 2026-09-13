@@ -5,12 +5,12 @@ import {
   createDemoPublishingPolicy,
 } from './publish-song.demo-policy.js';
 
-export function createSaveSongQueries(
+export function createPublishSongQueries(
   database = sql,
   { publishingPolicy = createDemoPublishingPolicy(database) } = {}
 ) {
   return {
-    async insertSongWithAuthorQuery(
+    async insertPublishedSong(
       songName,
       mp3Name,
       imgName,
@@ -65,4 +65,4 @@ export function createSaveSongQueries(
   };
 }
 
-export default createSaveSongQueries();
+export default createPublishSongQueries();

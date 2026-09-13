@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { createClient } from '@supabase/supabase-js';
 import AppError from '#error-handler';
-import Queries from './publish-song.query.js';
+import publishSongQueries from './publish-song.query.js';
 import { parsePublicationConsent } from './publish-song.publication-consent.js';
 
 export const fsp = fs.promises;
@@ -12,8 +12,8 @@ export const supabase = createClient(
   process.env.SUPABASE_KEY
 );
 
-export function createSaveSongInBase({ storage = supabase.storage, queries = Queries } = {}) {
-  return async function saveSongInBase(req, res, next) {
+export function createPublishSongController({ storage = supabase.storage, queries = publishSongQueries } = {}) {
+  return async function publishSong(req, res, next) {
     let mp3File;
     let imgFile;
     let publicationCreated = false;
@@ -56,7 +56,7 @@ export function createSaveSongInBase({ storage = supabase.storage, queries = Que
 
       const { credit, album_id } = addSongForm;
       const albumIdValue = album_id && album_id !== '' ? album_id : null;
-      await queries.insertSongWithAuthorQuery(
+      await queries.insertPublishedSong(
         songName,
         mp3Name,
         imgName,
@@ -113,7 +113,7 @@ async function uploadFile(storage, bucketName, objectPath, fileBuffer, fileMimet
     if (error) throw new AppError(error.message, 500);
   } catch (error) {
     throw new AppError(
-      error.message || 'saveSongInBase.controller error uploading file to Supabase',
+      error.message || 'publish-song controller error uploading file to Supabase',
       500
     );
   }
@@ -128,4 +128,4 @@ async function removeUploadedFiles(storage, bucketName, uploadedPaths) {
   }
 }
 
-export default createSaveSongInBase();
+export default createPublishSongController();

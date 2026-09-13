@@ -1,6 +1,6 @@
 import {sql} from "#db"
 
-export default async function getSongBySongId(id){
+export default async function getSongByIdQuery(id){
     const data = await sql`
         SELECT
             songs.id,

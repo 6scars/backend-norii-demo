@@ -1,14 +1,14 @@
 import express from 'express';
 
 import verifyToken from '#authentication/verify-token.middleware.js';
-import saveSongInBase from './publish-song.controller.js';
+import publishSongController from './publish-song.controller.js';
 import DemoPublishingPolicy from './publish-song.demo-policy.js';
 import { parseUpload, validateFiles } from './publish-song.upload.validation.js';
 
 export { uploadDir } from './publish-song.upload.validation.js';
 
-export function createSongUploadRouter(
-  controller = saveSongInBase,
+export function createPublishSongRouter(
+  controller = publishSongController,
   { publishingPolicy = DemoPublishingPolicy } = {}
 ) {
   const router = express.Router();
@@ -37,4 +37,4 @@ export function createSongUploadRouter(
   return router;
 }
 
-export default createSongUploadRouter();
+export default createPublishSongRouter();

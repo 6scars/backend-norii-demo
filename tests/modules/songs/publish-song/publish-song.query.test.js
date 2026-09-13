@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 
-import { createSaveSongQueries } from '#songs/publish-song/publish-song.query.js';
+import { createPublishSongQueries } from '#songs/publish-song/publish-song.query.js';
 
 const publicationConsent = {
   audioRightsConfirmed: true,
@@ -24,13 +24,13 @@ test('writes the song, author relation and consent through one database transact
     },
   };
   let assertedAuthorId;
-  const queries = createSaveSongQueries(database, {
+  const queries = createPublishSongQueries(database, {
     publishingPolicy: {
       async assertCanCommit(_transaction, authorId) { assertedAuthorId = authorId; },
     },
   });
 
-  const songId = await queries.insertSongWithAuthorQuery(
+  const songId = await queries.insertPublishedSong(
     'Test song',
     'song.mp3',
     'cover.png',

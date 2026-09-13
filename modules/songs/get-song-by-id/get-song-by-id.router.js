@@ -1,8 +1,8 @@
 import express from "express"
-import getSong from "./get-song-by-id.controller.js"
+import getSongById from "./get-song-by-id.controller.js"
 
 const router = express.Router()
 
-router.get('/getSong', getSong)
+router.get('/getSong', getSongById)
 
 export default router

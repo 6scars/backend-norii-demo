@@ -1,6 +1,6 @@
 import getAuthorAlbumsByUserIdQuery from "./get-author-albums.query.js";
 
-export default async function getAuthorsAlbums(req, res, next) {
+export default async function getAuthorAlbums(req, res, next) {
     const { id, email }     = req.payloadJWT;
     try {
         const response      = await getAuthorAlbumsByUserIdQuery(id)

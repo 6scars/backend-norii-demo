@@ -10,7 +10,7 @@ process.env.JWT_SECRET = 'test-upload-secret';
 process.env.SUPABASE_URL = 'https://example.supabase.co';
 process.env.SUPABASE_KEY = 'test-key';
 
-const { createSongUploadRouter, uploadDir } = await import('#songs/publish-song/publish-song.router.js');
+const { createPublishSongRouter, uploadDir } = await import('#songs/publish-song/publish-song.router.js');
 const seen = [];
 let policyError = null;
 const publishingPolicy = {
@@ -18,7 +18,7 @@ const publishingPolicy = {
   async assertCanStartUpload() { if (policyError) throw policyError; },
 };
 const app = express();
-app.use('/api', createSongUploadRouter(async (req, res) => {
+app.use('/api', createPublishSongRouter(async (req, res) => {
   seen.push({ files: req.files, userId: req.payloadJWT.id });
   res.status(201).json({ message: 'ok' });
 }, { publishingPolicy }));

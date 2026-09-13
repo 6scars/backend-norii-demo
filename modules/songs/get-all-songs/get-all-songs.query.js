@@ -2,7 +2,7 @@ import {sql}            from '#db'
 import AppError         from '#error-handler';
 
 
-export default async function getSongsQuery(){
+export default async function getAllSongsQuery(){
     try{
         const data = await sql`
             SELECT
@@ -25,7 +25,7 @@ export default async function getSongsQuery(){
         `
         return data;
     }catch(err){
-        throw new AppError('getSongsQuery query error', 500)
+        throw new AppError('getAllSongsQuery query error', 500)
     }
 }
 
