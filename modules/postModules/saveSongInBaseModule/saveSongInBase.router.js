@@ -6,6 +6,7 @@ import { randomUUID } from 'node:crypto';
 import AppError from '../../../config/errorHandler/errorHandler.js';
 import verifyToken from '../../middleware/verifyToken.middleware.js';
 import saveSongInBase from './saveSongInBase.controller.js';
+import DemoPublishingPolicy from './demoPublishingPolicy.js';
 
 export const uploadDir = path.resolve(process.env.SONG_UPLOAD_DIR || 'uploads');
 export const MAX_AUDIO_BYTES = 25 * 1024 * 1024;
@@ -119,9 +120,33 @@ async function validateFiles(req, _res, next) {
   }
 }
 
-export function createSongUploadRouter(controller = saveSongInBase) {
+export function createSongUploadRouter(
+  controller = saveSongInBase,
+  { publishingPolicy = DemoPublishingPolicy } = {}
+) {
   const router = express.Router();
-  router.post('/saveSongInBase', verifyToken, parseUpload, validateFiles, controller);
+  router.get('/demo-publishing-status', verifyToken, async (req, res, next) => {
+    try {
+      return res.status(200).json(await publishingPolicy.getStatus(req.payloadJWT.id));
+    } catch (error) {
+      return next(error);
+    }
+  });
+  router.post(
+    '/saveSongInBase',
+    verifyToken,
+    async (req, _res, next) => {
+      try {
+        await publishingPolicy.assertCanStartUpload(req.payloadJWT.id);
+        next();
+      } catch (error) {
+        next(error);
+      }
+    },
+    parseUpload,
+    validateFiles,
+    controller
+  );
   return router;
 }
 

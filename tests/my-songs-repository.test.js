@@ -109,3 +109,29 @@ test('records a failed storage cleanup for retry', async () => {
   assert.equal(completed, false);
   assert.match(statements[2].sql, /UPDATE song_storage_cleanup_jobs/);
 });
+
+test('removes expired demo publications and immediately processes their storage jobs', async () => {
+  const { query, statements } = createDatabase([[
+    { author_id: 7, song_id: 12 },
+    { author_id: 8, song_id: 13 },
+  ]]);
+  const repository = createMySongsRepository(query);
+  const deleted = [];
+  const cleaned = [];
+
+  repository.deleteOwned = async (authorId, songId) => {
+    deleted.push([authorId, songId]);
+    return { cleanupJobId: String(songId + 100) };
+  };
+  repository.processCleanupJob = async (jobId) => {
+    cleaned.push(jobId);
+    return true;
+  };
+
+  const result = await repository.processExpiredPublications(20);
+
+  assert.match(statements[0].sql, /expires_at <= now()/);
+  assert.deepEqual(deleted, [[7, 12], [8, 13]]);
+  assert.deepEqual(cleaned, ['112', '113']);
+  assert.deepEqual(result, { processed: 2, failed: 0 });
+});

@@ -142,6 +142,32 @@ export function createMySongsRepository(database = sql, storage) {
       return true;
     },
 
+    async processExpiredPublications(limit = 20) {
+      const publications = await database`
+        SELECT consent.author_id, consent.song_id
+        FROM song_publication_consents consent
+        WHERE consent.expires_at <= now()
+        ORDER BY consent.expires_at, consent.song_id
+        LIMIT ${limit}
+      `;
+      let processed = 0;
+      let failed = 0;
+
+      for (const publication of publications) {
+        try {
+          const { cleanupJobId } = await this.deleteOwned(
+            publication.author_id,
+            publication.song_id
+          );
+          if (cleanupJobId) await this.processCleanupJob(cleanupJobId);
+          processed += 1;
+        } catch {
+          failed += 1;
+        }
+      }
+      return { processed, failed };
+    },
+
     async processPendingCleanups(limit = 5) {
       const jobs = await database`
         SELECT id FROM song_storage_cleanup_jobs

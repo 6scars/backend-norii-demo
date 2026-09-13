@@ -1,7 +1,14 @@
 import AppError from '../../../../config/errorHandler/errorHandler.js';
 import { sql } from '../../../../config/db.js';
+import {
+  DEMO_PUBLICATION_TTL_MINUTES,
+  createDemoPublishingPolicy,
+} from '../demoPublishingPolicy.js';
 
-export function createSaveSongQueries(database = sql) {
+export function createSaveSongQueries(
+  database = sql,
+  { publishingPolicy = createDemoPublishingPolicy(database) } = {}
+) {
   return {
     async insertSongWithAuthorQuery(
       songName,
@@ -14,6 +21,7 @@ export function createSaveSongQueries(database = sql) {
     ) {
       try {
         return await database.begin(async (transaction) => {
+          await publishingPolicy.assertCanCommit(transaction, authorId);
           const insertedSongs = await transaction`
             INSERT INTO songs ("song_Name", file, "song_Image", credit, album_id)
             VALUES (${songName}, ${mp3Name}, ${imgName}, ${credit}, ${albumIdValue})
@@ -34,7 +42,8 @@ export function createSaveSongQueries(database = sql) {
               audio_rights_confirmed,
               cover_rights_confirmed,
               publishing_terms_accepted,
-              policy_version
+              policy_version,
+              expires_at
             )
             VALUES (
               ${authorId},
@@ -42,7 +51,8 @@ export function createSaveSongQueries(database = sql) {
               ${publicationConsent.audioRightsConfirmed},
               ${publicationConsent.coverRightsConfirmed},
               ${publicationConsent.publishingTermsAccepted},
-              ${publicationConsent.policyVersion}
+              ${publicationConsent.policyVersion},
+              now() + (${DEMO_PUBLICATION_TTL_MINUTES} * interval '1 minute')
             );
           `;
           return songId;

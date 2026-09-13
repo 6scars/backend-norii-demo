@@ -23,7 +23,12 @@ test('writes the song, author relation and consent through one database transact
       return callback(transaction);
     },
   };
-  const queries = createSaveSongQueries(database);
+  let assertedAuthorId;
+  const queries = createSaveSongQueries(database, {
+    publishingPolicy: {
+      async assertCanCommit(_transaction, authorId) { assertedAuthorId = authorId; },
+    },
+  });
 
   const songId = await queries.insertSongWithAuthorQuery(
     'Test song',
@@ -36,8 +41,9 @@ test('writes the song, author relation and consent through one database transact
   );
 
   assert.equal(transactionCount, 1);
+  assert.equal(assertedAuthorId, 7);
   assert.equal(songId, 44);
   assert.equal(statements.length, 3);
   assert.deepEqual(statements[1].values, [7, 44]);
-  assert.deepEqual(statements[2].values, [7, 44, true, true, true, '2026-09-12-v1']);
+  assert.deepEqual(statements[2].values, [7, 44, true, true, true, '2026-09-12-v1', 15]);
 });

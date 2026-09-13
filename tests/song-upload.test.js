@@ -12,11 +12,16 @@ process.env.SUPABASE_KEY = 'test-key';
 
 const { createSongUploadRouter, uploadDir } = await import('../modules/postModules/saveSongInBaseModule/saveSongInBase.router.js');
 const seen = [];
+let policyError = null;
+const publishingPolicy = {
+  async getStatus() { return { canPublish: true }; },
+  async assertCanStartUpload() { if (policyError) throw policyError; },
+};
 const app = express();
 app.use('/api', createSongUploadRouter(async (req, res) => {
   seen.push({ files: req.files, userId: req.payloadJWT.id });
   res.status(201).json({ message: 'ok' });
-}));
+}, { publishingPolicy }));
 app.use((error, _req, res, _next) => res.status(error.status || 500).json({ message: error.message }));
 const server = createServer(app);
 
@@ -51,6 +56,32 @@ test('rejects missing and invalid credentials before saving multipart files', as
     assert.equal(seen.length, 0);
     assert.deepEqual(await readdir(uploadDir).catch(() => []), initialFiles);
   }
+});
+
+test('checks demo limits before parsing and saving multipart files', async () => {
+  const initialFiles = await readdir(uploadDir).catch(() => []);
+  const initialSeen = seen.length;
+  policyError = Object.assign(new Error('W wersji demonstracyjnej możesz mieć maksymalnie 2 aktywne publikacje.'), {
+    status: 409,
+  });
+
+  try {
+    const response = await upload(form());
+    assert.equal(response.status, 409);
+    assert.match((await response.json()).message, /maksymalnie 2 aktywne publikacje/);
+    assert.equal(seen.length, initialSeen);
+    assert.deepEqual(await readdir(uploadDir).catch(() => []), initialFiles);
+  } finally {
+    policyError = null;
+  }
+});
+
+test('reports authenticated demo publishing status', async () => {
+  const response = await fetch(`http://127.0.0.1:${server.address().port}/api/demo-publishing-status`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  assert.equal(response.status, 200);
+  assert.deepEqual(await response.json(), { canPublish: true });
 });
 
 test('accepts MP3 and PNG bytes only for a valid session', async () => {
