@@ -1,32 +1,16 @@
-import bcrypt           from 'bcrypt'
-import {sql}            from '#db'
-import AppError         from '#error-handler';
+import bcrypt from 'bcrypt';
+
+import insertNewUser from './sign-up.query.js';
 
 export default async function signUp(req, res, next) {
-    const saltRounds = 10;
-    const { email, password } = req.body
-    try {
-        const hashed    = await bcrypt.hash(password, saltRounds)
-        const newUser   = await insertNewUser(email, hashed)
-        console.log(newUser)
-        console.log(newUser, '1')
-        
-        return res.status(201).json({ message: 'User Created' })
-    } catch (err) {
-        next(err)
-    }
-}
+  const saltRounds = 10;
+  const { email, password } = req.body;
 
-
-async function insertNewUser(email, hashed){
-    try{
-       const data = await sql`
-                INSERT INTO authors (email,password)
-                VALUES (${email}, ${hashed})
-        `;
-        return data;
-    }catch(err){
-        throw new AppError(err.message || "signUp querry error", 500)
-    }
-
+  try {
+    const hashedPassword = await bcrypt.hash(password, saltRounds);
+    await insertNewUser(email, hashedPassword);
+    return res.status(201).json({ message: 'User Created' });
+  } catch (error) {
+    next(error);
+  }
 }
