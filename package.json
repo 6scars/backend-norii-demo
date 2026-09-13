@@ -4,9 +4,11 @@
   "main": "server.js",
   "type": "module",
   "scripts": {
-    "test": "node --test",
+    "test": "npm run test:node && npm run test:jest",
     "dev": "set DEVELOPMENT=YES&& nodemon server.js",
-    "start": "node server.js"
+    "start": "node server.js",
+    "test:node": "node --test \"tests/**/*.test.js\"",
+    "test:jest": "node --experimental-vm-modules node_modules/jest/bin/jest.js"
   },
   "keywords": [],
   "author": "",
@@ -28,7 +30,9 @@
     "react-router": "^7.9.4"
   },
   "devDependencies": {
-    "nodemon": "^3.1.10"
+    "jest": "^30.5.1",
+    "nodemon": "^3.1.10",
+    "supertest": "^7.2.2"
   },
   "imports": {
     "#db": "./config/db.js",
