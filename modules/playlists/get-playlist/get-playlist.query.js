@@ -1,4 +1,4 @@
-import {sql}        from "#db" 
+import {sql}        from "#db"
 
 export default async function getPlaylistDataByPlaylistId(id){
         const dataPlaylist = await sql`

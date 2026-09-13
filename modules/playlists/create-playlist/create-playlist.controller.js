@@ -1,6 +1,6 @@
 import jwt                          from "jsonwebtoken"
 import AppError                     from "#error-handler"
-import insertNewAuthorsPlaylist     from "./create-playlist.query.js" 
+import insertNewAuthorsPlaylist     from "./create-playlist.query.js"
 const JWT_SECRET = process.env.JWT_SECRET
 
 
@@ -16,7 +16,7 @@ export default async function createPlaylist(req, res, next) {
 
         const token                                 = authHeader.split(' ')[1]
         const { id: authorId }                      = jwt.verify(token, JWT_SECRET);
-        
+
         await insertNewAuthorsPlaylist(authorId, playlistName, songsToAddArray)
 
         return res.status(201).json({ message: 'createPlaylist function' })
@@ -24,4 +24,3 @@ export default async function createPlaylist(req, res, next) {
         next(err)
     }
 }
-
