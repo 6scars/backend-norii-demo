@@ -1,0 +1,33 @@
+{
+  "name": "mini-spotify-backend",
+  "version": "1.0.0",
+  "main": "server.js",
+  "type": "module",
+  "scripts": {
+    "test": "node --test tests/*.test.js",
+    "dev": "set DEVELOPMENT=YES&& nodemon server.js",
+    "start": "node server.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "@supabase/supabase-js": "^2.78.0",
+    "bcrypt": "^6.0.0",
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.3",
+    "express": "^5.1.0",
+    "fs": "^0.0.1-security",
+    "jsonwebtoken": "^9.0.2",
+    "morgan": "^1.10.1",
+    "multer": "^2.0.2",
+    "node-cron": "^4.2.1",
+    "pg": "^8.16.3",
+    "postgres": "^3.4.7",
+    "react-router": "^7.9.4"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.10"
+  }
+}
