@@ -1,11 +1,11 @@
 import                       './config/env.js'
-import {sql}            from './config/db.js'
-import {errorHandler}   from './config/errorHandler/errorHandler.js'
+import {sql}            from '#db'
+import {errorHandler}   from '#error-handler'
 import express          from 'express';
 import cors             from 'cors';
 import router           from './router.js';
 import morgan           from 'morgan'
-import {startMySongsCleanupSchedule} from './modules/postModules/mySongsModule/mySongsCleanup.schedule.js'
+import {startMySongsCleanupSchedule} from '#scheduled-tasks/delete-expired-demo-songs/delete-expired-demo-songs.schedule.js'
 
 
 

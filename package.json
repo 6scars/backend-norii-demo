@@ -4,7 +4,7 @@
   "main": "server.js",
   "type": "module",
   "scripts": {
-    "test": "node --test tests/*.test.js",
+    "test": "node --test",
     "dev": "set DEVELOPMENT=YES&& nodemon server.js",
     "start": "node server.js"
   },
@@ -29,5 +29,15 @@
   },
   "devDependencies": {
     "nodemon": "^3.1.10"
+  },
+  "imports": {
+    "#db": "./config/db.js",
+    "#error-handler": "./config/errorHandler/errorHandler.js",
+    "#albums/*": "./modules/albums/*",
+    "#auth/*": "./modules/auth/*",
+    "#playlists/*": "./modules/playlists/*",
+    "#songs/*": "./modules/songs/*",
+    "#authentication/*": "./modules/shared/authentication/*",
+    "#scheduled-tasks/*": "./modules/scheduled-tasks/*"
   }
 }
