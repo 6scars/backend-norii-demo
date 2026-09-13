@@ -5,7 +5,7 @@ import express          from 'express';
 import cors             from 'cors';
 import router           from './router.js';
 import morgan           from 'morgan'
-import {startMySongsCleanupSchedule} from '#scheduled-tasks/delete-expired-demo-songs/delete-expired-demo-songs.schedule.js'
+import {startDeleteExpiredDemoSongsSchedule} from '#scheduled-tasks/delete-expired-demo-songs/delete-expired-demo-songs.schedule.js'
 
 
 
@@ -15,7 +15,7 @@ import {startMySongsCleanupSchedule} from '#scheduled-tasks/delete-expired-demo-
 const app       = express();
 const PORT      = process.env.PORT || 3005;
 
-startMySongsCleanupSchedule();
+startDeleteExpiredDemoSongsSchedule();
 
 app.use(express.json()  );
 app.use(cors()          );

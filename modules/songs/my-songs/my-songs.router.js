@@ -1,11 +1,12 @@
 import express from 'express';
-import verifyToken from '#authentication/verify-token.middleware.js';
-import MySongsController from './my-songs.controller.js';
 
-export function createMySongsRouter(controller = MySongsController) {
+import { createDeleteMySongRouter } from './delete-my-song/delete-my-song.router.js';
+import { createGetMySongsRouter } from './get-my-songs/get-my-songs.router.js';
+
+export function createMySongsRouter(controller) {
   const router = express.Router();
-  router.get('/my-songs', verifyToken, controller.list);
-  router.delete('/my-songs/:songId', verifyToken, controller.remove);
+  router.use(createGetMySongsRouter(controller?.list));
+  router.use(createDeleteMySongRouter(controller?.remove));
   return router;
 }
 
