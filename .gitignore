@@ -27,3 +27,4 @@ dist-ssr
 supabase/.temp/
 
 uploads/
+test-reports/
